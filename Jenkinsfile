@@ -126,11 +126,16 @@ pipeline {
                         passwordVariable: 'DOCKERHUB_PASSWORD'
                     )
                 ]) {
+
                     bat 'powershell -NoProfile -NonInteractive -Command "$env:DOCKERHUB_PASSWORD | docker login --username $env:DOCKERHUB_USERNAME --password-stdin"'
 
                     bat '''
-                        docker push "%DOCKERHUB_REPO%:%BUILD_NUMBER%" && ^
-                        docker push "%DOCKERHUB_REPO%:latest" && ^
+                        docker push "%DOCKERHUB_REPO%:%BUILD_NUMBER%"
+                        if errorlevel 1 exit /b 1
+
+                        docker push "%DOCKERHUB_REPO%:latest"
+                        if errorlevel 1 exit /b 1
+
                         docker logout
                     '''
                 }
